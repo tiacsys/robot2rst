@@ -72,6 +72,7 @@ ${'='*len(title)}
 
 % for test in parser.tests:
 .. item:: ${to_traceable_item(test.name, prefix)} ${test.name}
+    :ext_polarion_reference: ${test.req_id}
 % for relationship, tag_regex, _ in relationship_config:
 <%
 filtered_tags = [tag for tag in test.tags if re.search(tag_regex, tag)]

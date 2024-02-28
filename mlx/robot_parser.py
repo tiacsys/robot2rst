@@ -5,16 +5,30 @@ from robot.api import get_model, Token
 from robot.parsing import ModelVisitor
 
 
+RE_PARSE_TAGS = re.compile(r"(?P<key>\w+)=(?P<value>[\w\d\-_.]+)")
+
+
+def _tags_to_dict(tags: list[str]):
+    dic = {}
+    for tag in tags:
+        m = re.search(RE_PARSE_TAGS, tag)
+        if not m:
+            continue
+        dic[m.group("key")] = m.group("value")
+
+    return dic
+
+
 class ParserApplication(ModelVisitor):
     """ Class used to extract all useful info from the .robot file.
 
     See https://robot-framework.readthedocs.io/en/v6.0.2/autodoc/robot.api.html#inspecting-model
 
     Attributes:
-        tests (list): List of objects with attributes name (str), doc (str) and tags (list).
+        tests (list): List of objects with attributes name (str), req_id (str), doc (str) and tags (list).
         variables (dict): Dictionary mapping variables, e.g. '${MESSAGE}', to their values
     """
-    TestAttributes = namedtuple('TestAttributes', 'name doc tags')
+    TestAttributes = namedtuple('TestAttributes', 'name req_id doc tags')
 
     def __init__(self, robot_file, tags_for_inclusion, *args, **kwargs):
         """ Constructor
@@ -66,8 +80,12 @@ class ParserApplication(ModelVisitor):
                     previous_token = token
             elif element_type == Token.TAGS:
                 tags = [el.value for el in element.tokens if el.type == Token.ARGUMENT]
+            elif element_type == Token.KEYWORD:
+                doc += f"{element.keyword} {' '.join(element.args)}\n"
+
         if self.evaluate_inclusion(tags):
-            self.tests.append(self.TestAttributes(node.name, doc, tags))
+            tags_dict = _tags_to_dict(tags)
+            self.tests.append(self.TestAttributes(node.name, tags_dict.get("REQID", ""), doc, tags))
 
     def evaluate_inclusion(self, tags):
         for pattern in self.tags_for_inclusion:
