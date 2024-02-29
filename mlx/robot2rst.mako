@@ -99,7 +99,7 @@ The below table traces the ${test_type} test cases to the ${relationship} requir
     :target: ${tag_regex}
     :sourcetitle: ${test_type.capitalize()} test case
     :targettitle: ${relationship} requirement
-    :type: ${relationship}
+    :type: ext_polarion_reference
     :stats:
     :group: top
     :nocaptions:
