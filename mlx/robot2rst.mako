@@ -50,13 +50,13 @@ def generate_body(input_string):
             input_string = input_string.replace(variable, value)
     input_string = input_string.replace(r'\r', '').strip()
     lines = input_string.split(newline)
-    intermediate_output = indent
+    intermediate_output = f"\n{indent}::\n\n{indent}{indent}"
     for line in lines:
         if line:
             intermediate_output += line.rstrip()
         else:
             intermediate_output =  intermediate_output.rstrip(' ')
-        intermediate_output += line_separator
+        intermediate_output += line_separator + indent
     return intermediate_output.rstrip()
 %>\
 .. _${suite.replace(' ', '_')}:
@@ -81,7 +81,6 @@ filtered_tags = [tag for tag in test.tags if re.search(tag_regex, tag)]
     :${relationship}: ${' '.join(filtered_tags)}
     % endif
 % endfor
-
 % if str(test.doc):
 ${generate_body(str(test.doc))}
 
