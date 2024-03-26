@@ -107,6 +107,8 @@ def main():
                              "the type of test: qualification/integration test. The default is 'qualification'.")
     parser.add_argument("--trim-suffix", action='store_true',
                         help="If the suffix of any prefix or --tags argument ends with '_-' it gets trimmed to '-'.")
+    parser.add_argument("--disable-traceability-matrix", action='store_true',
+                        help="Force to not generate a traceability matrix for requirements.")
 
     logging.basicConfig(level=logging.INFO)
     args = parser.parse_args()
@@ -130,6 +132,10 @@ def main():
         gen_matrix = False
         LOGGER.warning("No traceability matrix will be generated because of the use of default tag regex %r.",
                        args.tags[0])
+
+    if args.disable_traceability_matrix:
+        gen_matrix = False
+
     tag_regexes = [_tweak_prefix(regex) if args.trim_suffix else regex for regex in args.tags]
 
     if len(relationships) != len(tag_regexes):
